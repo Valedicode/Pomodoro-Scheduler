@@ -1,6 +1,7 @@
 import java.util.Scanner;  // Import the Scanner class
 import java.time.LocalTime; // Import LocalTime class for representing time
-class Main{           public static void main(String [] args){
+class Main{
+    public static void main(String [] args){
         int pomodoro, breakTime, hours, minutes, totalSessions, scheduleType;
         String gym;
         boolean active, valid, sport, falseInput;
@@ -36,7 +37,7 @@ class Main{           public static void main(String [] args){
                             case 1:
                                 System.out.println("----------------------------------------------------------------------------------------");
                                 System.out.println("Morning schedule selected, initialization process started...");
-                                System.out.println("Are you going to Fit X today? Please answer with yes or no");
+                                System.out.println("Are you hitting the gym today? Please answer with yes or no");
                                 gym = input.next();
                                 while(falseInput){
                                     
@@ -57,7 +58,7 @@ class Main{           public static void main(String [] args){
                             case 2:
                                 System.out.println("----------------------------------------------------------------------------------------");
                                 System.out.println("Current time schedule selected, initialization process started...");
-                                System.out.println("Are you going to Fit X today? Please answer with yes or no");
+                                System.out.println("Are you hitting the gym today? Please answer with yes or no");
                                 gym = input.next();
                                 while(falseInput){
                                     if(gym.equalsIgnoreCase("yes")){
@@ -107,7 +108,7 @@ class Main{           public static void main(String [] args){
                     for(int i = 0; i < 8; i++){
                         System.out.println();
                     }
-                    System.out.println("Great! Here is your today's schedule, Kevin:");
+                    System.out.println("Great! Here is your today's schedule:");
                     //create schedule
                     if(scheduleType == 1){
                         schedule.printMorningSchedule(pomodoro, breakTime, unitLength.value);

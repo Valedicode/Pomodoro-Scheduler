@@ -46,7 +46,7 @@ class Scheduler{
         //10 minutes break + 20 minutes break to prepare sport clothes and driving to Fit X
         currTime = currTime.plusMinutes(10);
         if(sport){
-            printActivity(120, "Fit X");
+            printActivity(120, "Gym");
         }
         //print sessions until sleepin time is reached
         while(currSessionId < totalSessions){
@@ -60,7 +60,7 @@ class Scheduler{
         //10 minutes break + 20 minutes break to prepare sport clothes and driving to Fit X
         currTime = currTime.plusMinutes(10);
         if(sport){
-            printActivity(120, "Fit X");
+            printActivity(120, "Gym");
         }
         //print sessions until sleeping time is reached
         while(currSessionId < totalSessions){
