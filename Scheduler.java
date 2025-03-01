@@ -34,14 +34,14 @@ class Scheduler{
         currTime = currTime.plusMinutes(5);
 
         //noon
-        printSession(pomodoro, breakTime, unitLength);
+        printPomodoro(pomodoro, breakTime, unitLength);
         printActivity(40, "Lunch");
 
         //10 minutes break 
         currTime = currTime.plusMinutes(10);
 
         //evening
-        printSession(pomodoro, breakTime, unitLength);
+        printPomodoro(pomodoro, breakTime, unitLength);
         printActivity(60, "Dinner");
         //10 minutes break + 20 minutes break to prepare sport clothes and driving to Fit X
         currTime = currTime.plusMinutes(10);
@@ -50,13 +50,13 @@ class Scheduler{
         }
         //print sessions until sleepin time is reached
         while(currSessionId < totalSessions){
-            printSession(pomodoro, breakTime, unitLength);
+            printPomodoro(pomodoro, breakTime, unitLength);
         }
     }
 
     public void printTimeSchedule(int pomodoro, int breakTime, int unitLength){
         //lunch time
-        printSession(pomodoro, breakTime, unitLength);
+        printPomodoro(pomodoro, breakTime, unitLength);
         //10 minutes break + 20 minutes break to prepare sport clothes and driving to Fit X
         currTime = currTime.plusMinutes(10);
         if(sport){
@@ -64,45 +64,83 @@ class Scheduler{
         }
         //print sessions until sleeping time is reached
         while(currSessionId < totalSessions){
-            printSession(pomodoro, breakTime, unitLength);
+            printPomodoro(pomodoro, breakTime, unitLength);
         }
     }
 
     //print time schedule of a single acitivity in format: <hours:minutes> - <hours:minute>: <activity>
-    public void printActivity(int minutes, String activity){
+    private void printActivity(long minutes, String activity){
         System.out.print(currTime + " - ");
         currTime = currTime.plusMinutes(minutes);
         System.out.println(currTime + ": " + activity);
     }
 
+    private void printSession(long minutes, int sessionId){
+        System.out.print(currTime + " - ");
+        currTime = currTime.plusMinutes(minutes);
+        System.out.println(currTime + ": " + (sessionId) + ".Session");
+        currSessionId++;
+    }
+
     //print time schedule of a single acitivity in format: <hours:minutes> - <hours:minute>: <x> Session
-    public void printSession(int minutes, int breakTime, int unit){
+    private void printPomodoro(int minutes, int breakTime, int unit){
             //create pomodoro sessions -> number of sessions equals the value of unit
+            Duration residualTime;
+            long rest;
             for(int i = 0; i < unit; i++){
                 if(currSessionId <= totalSessions-1){
                     if(!dinner){
                         if(currTime.plusMinutes(minutes).isAfter(dinnerTime)){
-                            Duration residualTime = Duration.between(currTime, dinnerTime);
-                            long rest = residualTime.toMinutes() % 60;
-                            System.out.print(currTime + " - ");
-                            currTime = currTime.plusMinutes(rest);
-                            System.out.println(currTime + ": " + (currSessionId+1) + ".Session");
-                            currSessionId++;
-                            printActivity(60, "Dinner");
-                            dinner = true;
-                            break;
+                            residualTime = Duration.between(currTime, dinnerTime);
+                            rest = residualTime.toMinutes() % 60;
+                            if(rest < 20){
+                                printActivity(rest, "Puffer - not meaningful to start a new session");
+                                printActivity(60, "Dinner");
+                                dinner = true;
+                                break;
+                            }
+                            else{
+                                printSession(rest, currSessionId+1);
+                                printActivity(60, "Dinner");
+                                dinner = true;
+                                break;
+                            }
                         }
-                    }
-                    System.out.print(currTime + " - ");
-                    currTime = currTime.plusMinutes(minutes);
-                    System.out.println(currTime + ": " + (currSessionId+1) + ".Session");
-                    currSessionId++;
-                    //10 minutes break only if session is not the last session in the unit
-                    if(i < (unit-1)){
-                        printActivity(10, "Break");
+                        printSession(50, currSessionId+1);
                     }
                     else{
-                        printActivity(20, "Big Break");
+                        printSession(50, currSessionId+1);
+                    }
+                    if(!dinner){
+                        if(i < (unit-1)){
+                            if(currTime.plusMinutes(10).isAfter(dinnerTime)){
+                                printActivity(60, "Dinner");
+                                dinner = true;
+                                break;
+                            }
+                            else{
+                                printActivity(10, "Break");
+                            }
+                        }
+                        else{
+                            if(currTime.plusMinutes(20).isAfter(dinnerTime)){
+                                printActivity(60, "Dinner");
+                                dinner = true;
+                                break;
+                            }
+                            else{
+                                printActivity(20, "Big Break");
+                            }
+                        }
+                    }
+                    else{
+                        //10 minutes break only if session is not the last session in the unit
+                        if(i < (unit-1)){
+                            printActivity(10, "Break");
+                        }
+                        else{
+                            printActivity(20, "Big Break");
+                        }
                     }
                 }
             }
