@@ -36,7 +36,7 @@ class Main{           public static void main(String [] args){
                             case 1:
                                 System.out.println("----------------------------------------------------------------------------------------");
                                 System.out.println("Morning schedule selected, initialization process started...");
-                                System.out.println("Are you hitting the gym today? Please answer with yes or no");
+                                System.out.println("Are you going to Fit X today? Please answer with yes or no");
                                 gym = input.next();
                                 while(falseInput){
                                     
@@ -57,7 +57,7 @@ class Main{           public static void main(String [] args){
                             case 2:
                                 System.out.println("----------------------------------------------------------------------------------------");
                                 System.out.println("Current time schedule selected, initialization process started...");
-                                System.out.println("Are you hitting the gym today? Please answer with yes or no");
+                                System.out.println("Are you going to Fit X today? Please answer with yes or no");
                                 gym = input.next();
                                 while(falseInput){
                                     if(gym.equalsIgnoreCase("yes")){
@@ -97,7 +97,11 @@ class Main{           public static void main(String [] args){
                     else{
                         LocalTime currTime = LocalTime.now();
                         LocalTime currTimeFiltered = currTime.withSecond(0).withNano(0);
-                        schedule = new Scheduler(currTimeFiltered, totalSessions, sport);
+                        System.out.println("When do you want to eat dinner?");
+                        hours = input.nextInt();
+                        minutes = input.nextInt();
+                        LocalTime dinnerTime = LocalTime.of(hours,minutes);
+                        schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime);
                     }
                     //push initialization process to the top to hide it
                     for(int i = 0; i < 8; i++){

@@ -1,15 +1,22 @@
+import java.time.Duration;
 import java.time.LocalTime; // Import LocalTime class for representing time
 class Scheduler{
     
     int currSessionId;
     LocalTime currTime;
+    LocalTime dinnerTime;
     int totalSessions;
     boolean sport;
-    boolean lunch;
     boolean dinner;
-    LocalTime lunchTime;
-    LocalTime dinnerTime;
     //constructor
+    public Scheduler(LocalTime currTime, int totalSessions, boolean sport, LocalTime dinnerTime){
+        currSessionId = 0;
+        this.currTime = currTime;
+        this.totalSessions = totalSessions;
+        this.sport = sport;
+        this.dinnerTime = dinnerTime;
+    }
+
     public Scheduler(LocalTime currTime, int totalSessions, boolean sport){
         currSessionId = 0;
         this.currTime = currTime;
@@ -39,7 +46,7 @@ class Scheduler{
         //10 minutes break + 20 minutes break to prepare sport clothes and driving to Fit X
         currTime = currTime.plusMinutes(10);
         if(sport){
-            printActivity(120, "Gym");
+            printActivity(120, "Fit X");
         }
         //print sessions until sleepin time is reached
         while(currSessionId < totalSessions){
@@ -50,11 +57,10 @@ class Scheduler{
     public void printTimeSchedule(int pomodoro, int breakTime, int unitLength){
         //lunch time
         printSession(pomodoro, breakTime, unitLength);
-        printActivity(60, "Dinner");
         //10 minutes break + 20 minutes break to prepare sport clothes and driving to Fit X
         currTime = currTime.plusMinutes(10);
         if(sport){
-            printActivity(120, "Gym");
+            printActivity(120, "Fit X");
         }
         //print sessions until sleeping time is reached
         while(currSessionId < totalSessions){
@@ -74,6 +80,19 @@ class Scheduler{
             //create pomodoro sessions -> number of sessions equals the value of unit
             for(int i = 0; i < unit; i++){
                 if(currSessionId <= totalSessions-1){
+                    if(!dinner){
+                        if(currTime.plusMinutes(minutes).isAfter(dinnerTime)){
+                            Duration residualTime = Duration.between(currTime, dinnerTime);
+                            long rest = residualTime.toMinutes() % 60;
+                            System.out.print(currTime + " - ");
+                            currTime = currTime.plusMinutes(rest);
+                            System.out.println(currTime + ": " + (currSessionId+1) + ".Session");
+                            currSessionId++;
+                            printActivity(60, "Dinner");
+                            dinner = true;
+                            break;
+                        }
+                    }
                     System.out.print(currTime + " - ");
                     currTime = currTime.plusMinutes(minutes);
                     System.out.println(currTime + ": " + (currSessionId+1) + ".Session");
