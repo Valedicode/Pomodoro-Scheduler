@@ -58,9 +58,9 @@ class Main{
                             case 2:
                                 System.out.println("----------------------------------------------------------------------------------------");
                                 System.out.println("Current time schedule selected, initialization process started...");
-                                System.out.println("Are you hitting the gym today? Please answer with yes or no");
-                                gym = input.next();
                                 while(falseInput){
+                                    System.out.println("Are you hitting the gym today? Please answer with yes or no");
+                                    gym = input.next();
                                     if(gym.equalsIgnoreCase("yes")){
                                         sport = true;
                                         falseInput = false;
@@ -98,11 +98,15 @@ class Main{
                     else{
                         LocalTime currTime = LocalTime.now();
                         LocalTime currTimeFiltered = currTime.withSecond(0).withNano(0);
+                        System.out.println("When do you want to eat lunch?");
+                        hours = input.nextInt();
+                        minutes = input.nextInt();
+                        LocalTime lunchTime = LocalTime.of(hours,minutes);
                         System.out.println("When do you want to eat dinner?");
                         hours = input.nextInt();
                         minutes = input.nextInt();
                         LocalTime dinnerTime = LocalTime.of(hours,minutes);
-                        schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime);
+                        schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime, lunchTime);
                     }
                     //push initialization process to the top to hide it
                     for(int i = 0; i < 8; i++){

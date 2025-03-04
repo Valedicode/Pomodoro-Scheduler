@@ -5,17 +5,32 @@ class Scheduler{
     int currSessionId;
     LocalTime currTime;
     LocalTime dinnerTime;
+    LocalTime lunchTime;
     int totalSessions;
     boolean sport;
     boolean dinner;
+    boolean lunch;
     //constructor
+    public Scheduler(LocalTime currTime, int totalSessions, boolean sport, LocalTime dinnerTime, LocalTime lunchTime){
+        currSessionId = 0;
+        this.currTime = currTime;
+        this.totalSessions = totalSessions;
+        this.sport = sport;
+        this.dinnerTime = dinnerTime;
+        this.lunchTime = lunchTime;
+        this.dinner = false;
+        this.lunch = false;
+    }
+
     public Scheduler(LocalTime currTime, int totalSessions, boolean sport, LocalTime dinnerTime){
         currSessionId = 0;
         this.currTime = currTime;
         this.totalSessions = totalSessions;
         this.sport = sport;
         this.dinnerTime = dinnerTime;
+        this.dinner = false;
     }
+
 
     public Scheduler(LocalTime currTime, int totalSessions, boolean sport){
         currSessionId = 0;
@@ -25,6 +40,7 @@ class Scheduler{
     }
 
     //create schedule by creating multiple sessions and acitvities 
+    //bug: conflict with newly implemented printPomodoro method
     public void printMorningSchedule(int pomodoro, int breakTime, int unitLength){
         //morning
         printActivity(25, "Morning Routine");
@@ -89,33 +105,58 @@ class Scheduler{
             long rest;
             for(int i = 0; i < unit; i++){
                 if(currSessionId <= totalSessions-1){
-                    if(!dinner){
-                        if(currTime.plusMinutes(minutes).isAfter(dinnerTime)){
-                            residualTime = Duration.between(currTime, dinnerTime);
+                    //lunch time
+                    if(!lunch){
+                        if(currTime.plusMinutes(minutes).isAfter(lunchTime)){
+                            residualTime = Duration.between(currTime, lunchTime);
                             rest = residualTime.toMinutes() % 60;
                             if(rest < 20){
                                 printActivity(rest, "Puffer - not meaningful to start a new session");
-                                printActivity(60, "Dinner");
-                                dinner = true;
+                                printActivity(60, "lunch");
+                                lunch = true;
                                 break;
                             }
                             else{
                                 printSession(rest, currSessionId+1);
-                                printActivity(60, "Dinner");
-                                dinner = true;
+                                printActivity(60, "lunch");
+                                lunch = true;
                                 break;
                             }
                         }
                         printSession(50, currSessionId+1);
                     }
-                    else{
-                        printSession(50, currSessionId+1);
+                    // dinner time
+                    if(lunch){
+                        if(!dinner){
+                            if(currTime.plusMinutes(minutes).isAfter(dinnerTime)){
+                                residualTime = Duration.between(currTime, dinnerTime);
+                                rest = residualTime.toMinutes() % 60;
+                                if(rest < 20){
+                                    printActivity(rest, "Puffer - not meaningful to start a new session");
+                                    printActivity(60, "Dinner");
+                                    dinner = true;
+                                    break;
+                                }
+                                else{
+                                    printSession(rest, currSessionId+1);
+                                    printActivity(60, "Dinner");
+                                    dinner = true;
+                                    break;
+                                }
+                            }
+                            printSession(50, currSessionId+1);
+                        }
+                        else{
+                            printSession(50, currSessionId+1);
+                        }
                     }
-                    if(!dinner){
+
+                    // consider edge case that because of fixed dinnerTime break can just be couple of minutes -> instead just start dinnerTIme right away
+                    if(!lunch){
                         if(i < (unit-1)){
-                            if(currTime.plusMinutes(10).isAfter(dinnerTime)){
-                                printActivity(60, "Dinner");
-                                dinner = true;
+                            if(currTime.plusMinutes(10).isAfter(lunchTime)){
+                                printActivity(60, "Lunch");
+                                lunch = true;
                                 break;
                             }
                             else{
@@ -123,9 +164,9 @@ class Scheduler{
                             }
                         }
                         else{
-                            if(currTime.plusMinutes(20).isAfter(dinnerTime)){
-                                printActivity(60, "Dinner");
-                                dinner = true;
+                            if(currTime.plusMinutes(20).isAfter(lunchTime)){
+                                printActivity(60, "Lunch");
+                                lunch = true;
                                 break;
                             }
                             else{
@@ -133,13 +174,39 @@ class Scheduler{
                             }
                         }
                     }
-                    else{
-                        //10 minutes break only if session is not the last session in the unit
-                        if(i < (unit-1)){
-                            printActivity(10, "Break");
+
+                    // consider edge case that because of fixed dinnerTime break can just be couple of minutes -> instead just start dinnerTIme right away
+                    if(lunch){
+                        if(!dinner){
+                            if(i < (unit-1)){
+                                if(currTime.plusMinutes(10).isAfter(dinnerTime)){
+                                    printActivity(60, "Dinner");
+                                    dinner = true;
+                                    break;
+                                }
+                                else{
+                                    printActivity(10, "Break");
+                                }
+                            }
+                            else{
+                                if(currTime.plusMinutes(20).isAfter(dinnerTime)){
+                                    printActivity(60, "Dinner");
+                                    dinner = true;
+                                    break;
+                                }
+                                else{
+                                    printActivity(20, "Big Break");
+                                }
+                            }
                         }
                         else{
-                            printActivity(20, "Big Break");
+                            //10 minutes break only if session is not the last session in the unit
+                            if(i < (unit-1)){
+                                printActivity(10, "Break");
+                            }
+                            else{
+                                printActivity(20, "Big Break");
+                            }
                         }
                     }
                 }
