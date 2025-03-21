@@ -6,20 +6,24 @@ class Scheduler{
     LocalTime currTime;
     LocalTime dinnerTime;
     LocalTime lunchTime;
+    LocalTime sportTime;
     int totalSessions;
     boolean sport;
+    boolean sportFin;
     boolean dinner;
     boolean lunch;
     //constructor
-    public Scheduler(LocalTime currTime, int totalSessions, boolean sport, LocalTime dinnerTime, LocalTime lunchTime){
+    public Scheduler(LocalTime currTime, int totalSessions, boolean sport, LocalTime dinnerTime, LocalTime lunchTime, LocalTime sportTime){
         currSessionId = 0;
         this.currTime = currTime;
         this.totalSessions = totalSessions;
         this.sport = sport;
         this.dinnerTime = dinnerTime;
         this.lunchTime = lunchTime;
+        this.sportTime = sportTime;
         this.dinner = false;
         this.lunch = false;
+        this.sportFin = false;
     }
 
     public Scheduler(LocalTime currTime, int totalSessions, boolean sport, LocalTime dinnerTime){
@@ -71,13 +75,6 @@ class Scheduler{
     }
 
     public void printTimeSchedule(int pomodoro, int breakTime, int unitLength){
-        //lunch time
-        printPomodoro(pomodoro, breakTime, unitLength);
-        //10 minutes break + 20 minutes break to prepare sport clothes and driving to Fit X
-        currTime = currTime.plusMinutes(10);
-        if(sport){
-            printActivity(120, "Gym");
-        }
         //print sessions until sleeping time is reached
         while(currSessionId < totalSessions){
             printPomodoro(pomodoro, breakTime, unitLength);
@@ -104,8 +101,10 @@ class Scheduler{
             Duration residualTime;
             long rest;
             for(int i = 0; i < unit; i++){
+                // print one learning unit comprising x sessions 
                 if(currSessionId <= totalSessions-1){
                     //lunch time
+                    // case 1: lunch time and session time overlap -> adapt session duration up to the time when lunch starts
                     if(!lunch){
                         if(currTime.plusMinutes(minutes).isAfter(lunchTime)){
                             residualTime = Duration.between(currTime, lunchTime);
@@ -125,6 +124,88 @@ class Scheduler{
                         }
                         printSession(50, currSessionId+1);
                     }
+
+                    // case 2: session breaks and lunch time can overlap -> if overlap just start lunchTime
+                    if(!lunch){
+                        if(i < (unit-1)){
+                            //small session break overlaps with lunch -> just start lunchTime 
+                            if(currTime.plusMinutes(10).isAfter(lunchTime)){
+                                printActivity(60, "Lunch");
+                                lunch = true;
+                                break;
+                            }
+                            else{
+                                printActivity(10, "Break");
+                            }
+                        }
+                        else{
+                            //big session break overlaps with lunch -> just start lunchTime 
+                            if(currTime.plusMinutes(20).isAfter(lunchTime)){
+                                printActivity(60, "Lunch");
+                                lunch = true;
+                                break;
+                            }
+                            else{
+                                printActivity(20, "Big Break");
+                            }
+                        }
+                    }
+
+                    //sport time 
+                    if(sport){
+                        if(!sportFin){
+                            if(currTime.plusMinutes(minutes).isAfter(sportTime)){
+                                residualTime = Duration.between(currTime, sportTime);
+                                rest = residualTime.toMinutes() % 60;
+                                //session duration is too short -> skip session
+                                if(rest < 20){
+                                    printActivity(rest, "Puffer - not meaningful to start a new session");
+                                    printActivity(120, "Gym");
+                                    sportFin = true;
+                                    sport = false;
+                                    break;
+                                }
+                                else{
+                                    printSession(rest, currSessionId+1);
+                                    printActivity(120, "Gym");
+                                    sportFin = true;
+                                    sport = false;
+                                    break;
+                                }
+                            }
+                            printSession(50, currSessionId+1);
+                        }
+                    }
+
+                    // case 2: session breaks and lunch time can overlap -> if overlap just start lunchTime
+                    if(sport){
+                        if(!sportFin)
+                        if(i < (unit-1)){
+                            //small session break overlaps with lunch -> just start lunchTime 
+                            if(currTime.plusMinutes(10).isAfter(sportTime)){
+                                printActivity(120, "Gym");
+                                sportFin = true;
+                                sport = false;
+                                break;
+                            }
+                            else{
+                                printActivity(10, "Break");
+                            }
+                        }
+                        else{
+                            //big session break overlaps with lunch -> just start lunchTime 
+                            if(currTime.plusMinutes(20).isAfter(sportTime)){
+                                printActivity(120, "Gym");
+                                sportFin = true;
+                                sport = false;
+                                break;
+                            }
+                            else{
+                                printActivity(20, "Big Break");
+                            }
+                        }
+                    }
+                    
                     // dinner time
                     if(lunch){
                         if(!dinner){
@@ -151,31 +232,8 @@ class Scheduler{
                         }
                     }
 
-                    // consider edge case that because of fixed dinnerTime break can just be couple of minutes -> instead just start dinnerTIme right away
-                    if(!lunch){
-                        if(i < (unit-1)){
-                            if(currTime.plusMinutes(10).isAfter(lunchTime)){
-                                printActivity(60, "Lunch");
-                                lunch = true;
-                                break;
-                            }
-                            else{
-                                printActivity(10, "Break");
-                            }
-                        }
-                        else{
-                            if(currTime.plusMinutes(20).isAfter(lunchTime)){
-                                printActivity(60, "Lunch");
-                                lunch = true;
-                                break;
-                            }
-                            else{
-                                printActivity(20, "Big Break");
-                            }
-                        }
-                    }
-
-                    // consider edge case that because of fixed dinnerTime break can just be couple of minutes -> instead just start dinnerTIme right away
+                    // consider edge case that because of fixed dinnerTime break can just be couple of minutes 
+                    // -> instead just start dinnerTime right away
                     if(lunch){
                         if(!dinner){
                             if(i < (unit-1)){

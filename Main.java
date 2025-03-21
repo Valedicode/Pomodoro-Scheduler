@@ -106,7 +106,11 @@ class Main{
                         hours = input.nextInt();
                         minutes = input.nextInt();
                         LocalTime dinnerTime = LocalTime.of(hours,minutes);
-                        schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime, lunchTime);
+                        System.out.println("When do you want to start your gym session?");
+                        hours = input.nextInt();
+                        minutes = input.nextInt();
+                        LocalTime sportTime = LocalTime.of(hours,minutes);
+                        schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime, lunchTime, sportTime);
                     }
                     //push initialization process to the top to hide it
                     for(int i = 0; i < 8; i++){
