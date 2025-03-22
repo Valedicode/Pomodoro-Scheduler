@@ -87,14 +87,30 @@ class Main{
                     System.out.println("How many sessions should be absolved in one unit?");
                     IntWrapper unitLength = new IntWrapper(input.nextInt());
                     Scheduler schedule;
+                    //morning schedule
                     if(scheduleType == 1){
                         System.out.println("At what time should I start to create your schedule? Please firstly submit the hours and then the minutes");
-                    
-                    hours = input.nextInt();
-                    minutes = input.nextInt();
-                    LocalTime time = LocalTime.of(hours,minutes);
-                    schedule = new Scheduler(time, totalSessions, sport);
+                        hours = input.nextInt();
+                        minutes = input.nextInt();
+                        LocalTime startTime = LocalTime.of(hours,minutes);
+                        System.out.println("When do you want to eat lunch?");
+                        hours = input.nextInt();
+                        minutes = input.nextInt();
+                        LocalTime lunchTime = LocalTime.of(hours,minutes);
+                        System.out.println("When do you want to eat dinner?");
+                        hours = input.nextInt();
+                        minutes = input.nextInt();
+                        LocalTime dinnerTime = LocalTime.of(hours,minutes);
+                        if(sport){
+                            System.out.println("When do you want to start your gym session?");
+                            hours = input.nextInt();
+                            minutes = input.nextInt();
+                            LocalTime sportTime = LocalTime.of(hours,minutes);
+                            schedule = new Scheduler(startTime, totalSessions, sport, dinnerTime, lunchTime, sportTime);
+                        }
+                        schedule = new Scheduler(startTime, totalSessions, sport, dinnerTime, lunchTime);
                     }
+                    //noon schedule
                     else{
                         LocalTime currTime = LocalTime.now();
                         LocalTime currTimeFiltered = currTime.withSecond(0).withNano(0);
@@ -106,11 +122,16 @@ class Main{
                         hours = input.nextInt();
                         minutes = input.nextInt();
                         LocalTime dinnerTime = LocalTime.of(hours,minutes);
-                        System.out.println("When do you want to start your gym session?");
-                        hours = input.nextInt();
-                        minutes = input.nextInt();
-                        LocalTime sportTime = LocalTime.of(hours,minutes);
-                        schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime, lunchTime, sportTime);
+                        if(sport){
+                            System.out.println("When do you want to start your gym session?");
+                            hours = input.nextInt();
+                            minutes = input.nextInt();
+                            LocalTime sportTime = LocalTime.of(hours,minutes);
+                            schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime, lunchTime, sportTime);
+                        }
+                        else{
+                            schedule = new Scheduler(currTimeFiltered, totalSessions, sport, dinnerTime, lunchTime);
+                        }
                     }
                     //push initialization process to the top to hide it
                     for(int i = 0; i < 8; i++){
@@ -118,12 +139,7 @@ class Main{
                     }
                     System.out.println("Great! Here is your today's schedule:");
                     //create schedule
-                    if(scheduleType == 1){
-                        schedule.printMorningSchedule(pomodoro, breakTime, unitLength.value);
-                    }
-                    else{
-                        schedule.printTimeSchedule(pomodoro, breakTime, unitLength.value);
-                    }
+                    schedule.printTimeSchedule(pomodoro, breakTime, unitLength.value);
                     break;
                 case 2:
                     //end screen
